@@ -6,9 +6,9 @@ import 'package:flip_card/flip_card.dart';
 
 Map<String, Color> circleAvatorColor = {
   'DBMS': const Color.fromARGB(255, 243, 68, 126),
-  'ADS': Colors.blue,
+  'ADS': Color.fromARGB(255, 8, 137, 242),
   'OS': Colors.green,
-  'PS': Colors.yellow,
+  'PS': Color.fromARGB(255, 218, 197, 6),
   'ITWL': Colors.deepOrange,
   'TOC': Colors.purple,
   'SS': Colors.brown,
@@ -30,12 +30,17 @@ class ListItem extends StatefulWidget {
 }
 
 class _ListItemState extends State<ListItem> {
+  List batch = [];
+  List labSubjects = [];
+  List labInitials = [];
+  List labRooms = [];
   late FlipCardController _controller;
   bool isExpanded = false;
   @override
   void initState() {
     super.initState();
-    print(widget.title);
+    // print(widget.title);
+    // [ADS, A1, PGC, B207, ITWLL, A3, VAMI, B206, SS, A2, PRR, B205]
     _controller = FlipCardController();
   }
 
@@ -43,8 +48,25 @@ class _ListItemState extends State<ListItem> {
     _controller.toggleCard();
   }
 
-  formattedText() {
-    return widget.title; //
+  List formattedText() {
+    // widget.title.toList();
+    List<String> titleList = widget.title.split(' ');
+    List output = [];
+    for (var i = 0; i < titleList.length; i += 4) {
+      output.add(
+          "${titleList[i + 1].trim()}: ${titleList[i]} (${titleList[i + 2]}) (${titleList[i + 3]})");
+      batch.add(titleList[i + 1]);
+      labSubjects.add(titleList[i]);
+      labInitials.add(titleList[i + 2]);
+      labRooms.add(titleList[i + 3]);
+      output.add('-');
+
+      // "${titleList[i + 1]}: ${titleList[i]} (${titleList[i + 2]}) (${titleList[i + 3]})";
+      print(output);
+    }
+    return output; // [ADS, A1, PGC, B207, ITWLL, A3, VAMI, B206, SS, A2, PRR, B205]
+
+    // 1, 5, 9
   }
 
   Widget flippableListItem() {
@@ -83,12 +105,58 @@ class _ListItemState extends State<ListItem> {
           ),
         ),
         back: Container(
-          margin: const EdgeInsets.all(8.0),
-          child: Text(widget.title),
-        ),
-        autoFlipDuration: const Duration(
-            seconds:
-                2), // The flip effect will work automatically after the 2 seconds
+            alignment: Alignment.centerLeft,
+            margin: const EdgeInsets.all(8.0),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                RichText(
+                  textAlign: TextAlign.left,
+                  text: TextSpan(
+                    style: DefaultTextStyle.of(context).style,
+                    children: formattedText()
+                        .toString()
+                        .trim()
+                        .split('-')
+                        .join('\n')
+                        .replaceAll('[', '')
+                        .replaceAll(']', '')
+                        .replaceAll('-', '')
+                        .replaceAll(',', '')
+                        .split('-')
+                        .map((str) {
+                      if (str.contains('A1') ||
+                          str.contains('A2') ||
+                          str.contains('A3')) {
+                        return TextSpan(
+                            text: '$str\n',
+                            style:
+                                const TextStyle(fontWeight: FontWeight.bold));
+                      } else {
+                        return TextSpan(text: '$str\n');
+                      }
+                    }).toList(),
+                  ),
+                ),
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.end,
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  children: [
+                    Text(widget.startTime),
+                    SizedBox(
+                      height: MediaQuery.of(context).size.height * 0.1,
+                    ),
+                    Text(widget.endTime),
+                  ],
+                ),
+              ],
+            )
+            //[A1,: [ADS, (PGC,) (B207,), A3,: ITWLL, (VAMI,) (B206,), A2,: SS, (PRR,) (B205])]
+            ),
+        // autoFlipDuration: const Duration(
+        //     seconds:
+        //         2), // The flip effect will work automatically after the 2 seconds
       ),
     );
     // return FlipCard(

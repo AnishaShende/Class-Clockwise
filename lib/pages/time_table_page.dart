@@ -1,5 +1,6 @@
 import 'package:class_clockwise/models/time_table_model.dart';
 import 'package:class_clockwise/pages/list_item.dart';
+import 'package:class_clockwise/pages/settings_page.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:intl/intl.dart';
@@ -41,7 +42,7 @@ class _TimeTableState extends State<TimeTable> {
   Future<void> fetchData() async {
     try {
       final List<TimetableData> data = await TimetableData.fetchDataFromAPI();
-
+      currentTime = 'WED';
       timetableData = data.where((data) => data.day == currentTime).toList();
 
       // startTime = timetableData.isNotEmpty
@@ -251,29 +252,46 @@ class _TimeTableState extends State<TimeTable> {
 
   @override
   Widget build(BuildContext context) {
+    bool showSettingsPage = false;
     return Scaffold(
-      appBar: AppBar(
-        title: Text(
-          'Class Clockwise',
-          style: TextStyle(
-              fontWeight: FontWeight.bold,
-              color: Theme.of(context).colorScheme.background.withOpacity(0.9)),
+        appBar: AppBar(
+          title: Text(
+            'Class Clockwise',
+            style: TextStyle(
+                fontWeight: FontWeight.bold,
+                color:
+                    Theme.of(context).colorScheme.background.withOpacity(0.9)),
+          ),
+          centerTitle: true,
+          backgroundColor: Theme.of(context).colorScheme.onPrimaryContainer,
         ),
-        centerTitle: true,
-        backgroundColor: Theme.of(context).colorScheme.onPrimaryContainer,
-      ),
-      backgroundColor:
-          Theme.of(context).colorScheme.background.withOpacity(0.9),
-      bottomNavigationBar: BottomNavigationBar(
-        key: ValueKey(currentTime),
-        items: const [
-          BottomNavigationBarItem(icon: Icon(Icons.abc), label: 'abc'),
-          BottomNavigationBarItem(
-              icon: Icon(Icons.access_alarm), label: 'alarm')
-        ],
-      ),
-      body: content(),
-    );
+        backgroundColor:
+            Theme.of(context).colorScheme.background.withOpacity(0.9),
+        bottomNavigationBar: BottomNavigationBar(
+          key: ValueKey(currentTime),
+          items: const [
+            BottomNavigationBarItem(icon: Icon(Icons.home), label: 'home'),
+            BottomNavigationBarItem(
+                icon: Icon(Icons.settings), label: 'settings')
+          ],
+          onTap: (index) {
+            if (index == 1) {
+              setState(() {
+                showSettingsPage = true;
+              });
+            } else {
+              setState(() {
+                showSettingsPage = false;
+              });
+            }
+          },
+        ),
+        body: Stack(
+          children: [
+            content(),
+            if (showSettingsPage) const SettingsPage(),
+          ],
+        ));
   }
 }
 
