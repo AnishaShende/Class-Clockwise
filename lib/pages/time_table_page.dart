@@ -1,6 +1,8 @@
 import 'package:class_clockwise/models/time_table_model.dart';
 import 'package:class_clockwise/pages/list_item.dart';
+import 'package:class_clockwise/pages/sunday_page.dart';
 import 'package:class_clockwise/pages/settings_page.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:intl/intl.dart';
@@ -22,6 +24,16 @@ class _TimeTableState extends State<TimeTable> {
   String currentSubject = '';
   String currentInitials = '';
   String formattedText = '';
+  String tutBatch = '';
+  final List<String> days = [
+    'MONDAY',
+    'TUESDAY',
+    'WEDNESDAY',
+    'THURSDAY',
+    'FRIDAY',
+    'SATURDAY',
+    'SUNDAY'
+  ];
 
   @override
   void initState() {
@@ -32,48 +44,141 @@ class _TimeTableState extends State<TimeTable> {
     final String formattedDay = formatter.format(now);
     currentDay = formattedDay;
     currentTime = formattedDay.toUpperCase();
-    currentTime = currentTime == 'THURSDAY'
-        ? currentTime.substring(0, 5)
-        : currentTime.substring(0, 3);
-    // print('currentTime: $currentTime');
     fetchData();
   }
 
   Future<void> fetchData() async {
     try {
+      currentTime = currentTime == 'THURSDAY'
+          ? currentTime.substring(0, 5)
+          : currentTime.substring(0, 3);
       final List<TimetableData> data = await TimetableData.fetchDataFromAPI();
-      currentTime = 'WED';
       timetableData = data.where((data) => data.day == currentTime).toList();
 
-      // startTime = timetableData.isNotEmpty
-      //     ? timetableData.first.time.split('-').first.trim()
-      //     : '';
-      // endTime = timetableData.isNotEmpty
-      //     ? timetableData.last.time.split('-').last.trim()
-      //     : '';
-      // print(data);
       setState(() {});
     } catch (e) {
       print('Error fetching data: $e');
     }
   }
 
+  dropMenu(String text) {
+    return GestureDetector(
+      onTap: () {
+        showDialog(
+          context: context,
+          builder: (context) {
+            return Dialog(
+              alignment: Alignment.center,
+              backgroundColor: Theme.of(context).colorScheme.onPrimaryContainer,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(10),
+              ),
+              insetPadding: const EdgeInsets.fromLTRB(50, 100, 50, 100),
+              child: Center(
+                child: Container(
+                  height: MediaQuery.of(context).size.height * 0.5,
+                  width: MediaQuery.of(context).size.height * 0.5,
+                  alignment: Alignment.center,
+                  child: Center(
+                    child: Column(
+                      children: days.map((day) {
+                        return RadioListTile(
+                          title: Text(
+                            day,
+                            style: TextStyle(
+                                fontSize: 15,
+                                fontWeight: FontWeight.bold,
+                                color:
+                                    Theme.of(context).colorScheme.background),
+                            textAlign: TextAlign.start,
+                          ),
+                          value: day,
+                          groupValue: currentDay,
+                          onChanged: (value) {
+                            setState(() {
+                              currentDay = value.toString();
+                              currentTime = value.toString();
+                              print(value);
+                              fetchData();
+                            });
+                            Navigator.pop(context);
+                          },
+                        );
+                      }).toList(), // Convert the iterable to a list
+                    ),
+                  ),
+                ),
+              ),
+            );
+          },
+        );
+      },
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Text(
+            text.toUpperCase(),
+            style: TextStyle(
+                fontSize: 17,
+                fontWeight: FontWeight.bold,
+                color: Theme.of(context).colorScheme.onPrimaryContainer),
+            textAlign: TextAlign.start,
+          ),
+          const SizedBox(
+            width: 2,
+          ),
+          Icon(
+            Icons.arrow_drop_down_rounded,
+            size: 30,
+            color: Theme.of(context).colorScheme.onPrimaryContainer,
+          ),
+        ],
+      ),
+    );
+  }
+
   Widget content() {
-    if (currentTime == 'SUN') {
-      return const Text('No classes on Sunday!');
+    if (currentTime == 'SUN' || currentTime == 'SAT') {
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.center,
+        // mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Padding(
+              padding: const EdgeInsets.all(5.0),
+              child: Center(
+                child: dropMenu(currentDay),
+              )
+              // Text(currentDay),
+              ),
+          SizedBox(
+            height: MediaQuery.of(context).size.height * 0.15,
+          ),
+          Column(
+            children: [
+              const SundayPage(),
+              Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Center(
+                  child: Text(
+                    'No classes for today!',
+                    style: TextStyle(
+                      fontSize: 20,
+                      color: Theme.of(context).colorScheme.onPrimaryContainer,
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ],
+      );
     } else {
       return Column(
         children: [
           Padding(
             padding: const EdgeInsets.all(5.0),
-            child: Text(
-              currentDay,
-              style: TextStyle(
-                  fontSize: 22,
-                  fontWeight: FontWeight.bold,
-                  color: Theme.of(context).colorScheme.onPrimaryContainer),
-              textAlign: TextAlign.start,
-            ),
+            child: Center(child: dropMenu(currentDay)),
+            // Text(currentDay),
           ),
           const SizedBox(
             height: 5,
@@ -90,6 +195,7 @@ class _TimeTableState extends State<TimeTable> {
                   classroom,
                   startTime,
                   endTime,
+                  tutBatch,
                 );
               },
             ),
@@ -103,6 +209,7 @@ class _TimeTableState extends State<TimeTable> {
     if (subject == 'Lunch Break') {
       currentInitials = '';
       classroom = '';
+      tutBatch = '';
       startTime = index < timetableData.length
           ? timetableData[index].time.split('-').first.trim()
           : '';
@@ -113,6 +220,7 @@ class _TimeTableState extends State<TimeTable> {
     } else if (subject.isEmpty) {
       currentInitials = '';
       classroom = '';
+      tutBatch = '';
       startTime = index < timetableData.length
           ? timetableData[index].time.split('-').first.trim()
           : '';
@@ -147,108 +255,23 @@ class _TimeTableState extends State<TimeTable> {
         currentSubject = components1[0];
         currentInitials = components1[1];
         classroom = components1[2];
+        tutBatch = '';
         return currentSubject;
       } else if (components1.length == 4) {
         currentSubject = components1[0];
+        tutBatch = components1[1];
         currentInitials = components1[2];
         classroom = components1[3];
         return currentSubject;
       } else {
+        tutBatch = '';
         formattedText = components1.toString();
-        currentInitials = 'qwerty';
+        currentInitials = '';
 
         return formattedText;
       }
     }
   }
-
-  // filter() {
-  //   String text = "DBMS(MPK)(B201)";
-  //   RegExp regex = RegExp(r'([A-Z]+)\(([A-Z]+)\)\(([A-Z0-9]+)\)');
-
-  //   Match? match = regex.firstMatch(text);
-
-  //   if (match != null) {
-  //     String subject = match.group(1)!; // DBMS
-  //     String teacherInitials = match.group(2)!; // MPK
-  //     String classroom = match.group(3)!; // B201
-
-  //     // print("Subject: $subject");
-  //     // print("Teacher Initials: $teacherInitials");
-  //     // print("Classroom: $classroom");
-  //   } else {
-  //     print("No match found");
-  //   }
-  //   String text1 = "PS TUT (A3) (NNW) (B314)";
-  //   String text2 =
-  //       "ITWL (A1) (PPG) (B205), OS (A2) (NNS) (B207), DMS (A3) (MPK) (B206)";
-  //   // If length is more than 4 it is text2
-
-  //   // Regular expression pattern to match different components
-  //   RegExp regexText = RegExp(r'([A-Z\s]+)|\(([A-Z0-9]+)\)');
-
-  //   // Match text1
-  //   Iterable<Match> matches1 = regexText.allMatches(text2); //text1
-  //   List<String> components1 = [];
-  //   for (Match match in matches1) {
-  //     String? group1 = match.group(1);
-  //     String? group2 = match.group(2);
-  //     if (group1 != null) {
-  //       components1.add(group1.trim());
-  //     }
-  //     if (group2 != null) {
-  //       components1.add(group2.trim());
-  //     }
-  //   }
-
-  //   // // Match text2
-  //   // Iterable<Match> matches2 = regexText.allMatches(text2);
-  //   // List<String> components2 = [];
-  //   // for (Match match in matches2) {
-  //   //   String? group1 = match.group(1);
-  //   //   String? group2 = match.group(2);
-  //   //   if (group1 != null) {
-  //   //     components2.add(group1.trim());
-  //   //   }
-  //   //   if (group2 != null) {
-  //   //     components2.add(group2.trim());
-  //   //   }
-  //   // }
-  //   List<String> text2List = text2.split(',');
-
-  //   // Match each string from text2List
-  //   List<List<String>> nestedComponents = [];
-  //   for (String text in text2List) {
-  //     Iterable<Match> matches = regexText.allMatches(text);
-  //     List<String> currentList = [];
-  //     for (Match match in matches) {
-  //       String? group1 = match.group(1);
-  //       String? group2 = match.group(2);
-  //       if (group1 != null) {
-  //         currentList.add(group1.trim());
-  //       }
-  //       if (group2 != null) {
-  //         currentList.add(group2.trim());
-  //       }
-  //     }
-
-  //     // Remove null elements from currentList
-  //     currentList.removeWhere((element) => element.isEmpty);
-  //     if (currentList.isNotEmpty) {
-  //       nestedComponents.add(currentList);
-  //     }
-  //   }
-
-  //   // Output results
-  //   print("Text 1 Components: $components1");
-  //   print("Text 2 Components: $nestedComponents");
-
-  //   // Subject: DBMS
-  //   // Teacher Initials: MPK
-  //   // Classroom: B201
-  //   // Text 1 Components: [PS TUT, A3, , NNW, , B314]
-  //   // Text 2 Components: [[ITWL, A1, PPG, B205], [OS, A2, NNS, B207], [DMS, A3, MPK, B206]]
-  // }
 
   @override
   Widget build(BuildContext context) {
@@ -266,7 +289,7 @@ class _TimeTableState extends State<TimeTable> {
           backgroundColor: Theme.of(context).colorScheme.onPrimaryContainer,
         ),
         backgroundColor:
-            Theme.of(context).colorScheme.background.withOpacity(0.9),
+            Theme.of(context).colorScheme.background.withOpacity(0.7),
         bottomNavigationBar: BottomNavigationBar(
           key: ValueKey(currentTime),
           items: const [
@@ -294,38 +317,3 @@ class _TimeTableState extends State<TimeTable> {
         ));
   }
 }
-
-
-
-                // Display start time at upper right corner
-                // if (startTime.isNotEmpty)
-                //   Padding(
-                //     padding: const EdgeInsets.only(top: 8.0, right: 8.0),
-                //     child: Align(
-                //       alignment: Alignment.topRight,
-                //       child: Text(
-                //         'Start Time: $startTime',
-                //         style: const TextStyle(
-                //             fontSize: 16, fontWeight: FontWeight.bold),
-                //       ),
-                //     ),
-                //   ),
-                // Display timetable data
-                // DBMS(MPK)(B201)
-                // 1st value is subject, 2nd value is initials, 3rd value is classroom
-
-
-                // filter(),
-                // Display end time at lower right corner
-                // if (endTime.isNotEmpty)
-                //   Padding(
-                //     padding: const EdgeInsets.only(bottom: 8.0, right: 8.0),
-                //     child: Align(
-                //       alignment: Alignment.bottomRight,
-                //       child: Text(
-                //         'End Time: $endTime',
-                //         style: const TextStyle(
-                //             fontSize: 16, fontWeight: FontWeight.bold),
-                //       ),
-                //     ),
-                //   ),
