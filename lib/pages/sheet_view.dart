@@ -10,15 +10,13 @@ class SheetView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: GestureDetector(
-        onTap: () async {
-          await _openFile();
-        },
-        child: Container(
-          width: 70,
-          child: Text("Google Sheets"),
-        ),
+    return GestureDetector(
+      onTap: () async {
+        await _openFile();
+      },
+      child: SizedBox(
+        height: MediaQuery.of(context).size.height * 0.1,
+        child: Text("Google Sheets"),
       ),
     );
   }

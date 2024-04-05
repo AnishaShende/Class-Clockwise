@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
-class SundayPage extends StatelessWidget {
-  const SundayPage({super.key});
+class HolidayPage extends StatelessWidget {
+  const HolidayPage({super.key});
 
   @override
   Widget build(BuildContext context) {

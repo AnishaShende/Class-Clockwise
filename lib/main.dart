@@ -1,3 +1,4 @@
+import 'package:class_clockwise/pages/home_page.dart';
 import 'package:class_clockwise/pages/time_table_page.dart';
 import 'package:flutter/material.dart';
 
@@ -16,10 +17,9 @@ class MyApp extends StatelessWidget {
       title: 'Class Clockwise',
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(
-          seedColor: Colors.deepPurple.shade300, brightness: Brightness.dark
-        ),
+            seedColor: Colors.deepPurple.shade300, brightness: Brightness.dark),
       ),
-      home: const TimeTable(),
+      home: const HomePage(),
     );
   }
 }

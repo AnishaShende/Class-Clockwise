@@ -1,6 +1,6 @@
 import 'package:class_clockwise/models/time_table_model.dart';
 import 'package:class_clockwise/pages/list_item.dart';
-import 'package:class_clockwise/pages/sunday_page.dart';
+import 'package:class_clockwise/pages/holiday_page.dart';
 import 'package:class_clockwise/pages/settings_page.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -155,7 +155,7 @@ class _TimeTableState extends State<TimeTable> {
           ),
           Column(
             children: [
-              const SundayPage(),
+              const HolidayPage(),
               Padding(
                 padding: const EdgeInsets.all(8.0),
                 child: Center(
@@ -275,45 +275,6 @@ class _TimeTableState extends State<TimeTable> {
 
   @override
   Widget build(BuildContext context) {
-    bool showSettingsPage = false;
-    return Scaffold(
-        appBar: AppBar(
-          title: Text(
-            'Class Clockwise',
-            style: TextStyle(
-                fontWeight: FontWeight.bold,
-                color:
-                    Theme.of(context).colorScheme.background.withOpacity(0.9)),
-          ),
-          centerTitle: true,
-          backgroundColor: Theme.of(context).colorScheme.onPrimaryContainer,
-        ),
-        backgroundColor:
-            Theme.of(context).colorScheme.background.withOpacity(0.7),
-        bottomNavigationBar: BottomNavigationBar(
-          key: ValueKey(currentTime),
-          items: const [
-            BottomNavigationBarItem(icon: Icon(Icons.home), label: 'home'),
-            BottomNavigationBarItem(
-                icon: Icon(Icons.settings), label: 'settings')
-          ],
-          onTap: (index) {
-            if (index == 1) {
-              setState(() {
-                showSettingsPage = true;
-              });
-            } else {
-              setState(() {
-                showSettingsPage = false;
-              });
-            }
-          },
-        ),
-        body: Stack(
-          children: [
-            content(),
-            if (showSettingsPage) const SettingsPage(),
-          ],
-        ));
+    return content();
   }
 }
