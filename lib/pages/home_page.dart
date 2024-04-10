@@ -37,14 +37,13 @@ class _HomePageState extends State<HomePage> {
           BottomNavigationBarItem(icon: Icon(Icons.settings), label: 'settings')
         ],
         onTap: _onItemTapped,
-        type: BottomNavigationBarType.shifting,
+        type: BottomNavigationBarType.fixed,
         currentIndex: _selectedIndex,
         selectedItemColor:
             Theme.of(context).colorScheme.background.withOpacity(0.9),
         backgroundColor: Theme.of(context).colorScheme.onPrimaryContainer,
         unselectedItemColor:
             Theme.of(context).colorScheme.background.withOpacity(0.5),
-        // elevation: 5,
       ),
       body: Center(
         child: _widgetOptions.elementAt(_selectedIndex),

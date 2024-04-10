@@ -1,7 +1,5 @@
 import 'package:flip_card/flip_card_controller.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 import 'package:flip_card/flip_card.dart';
 
 Map<String, Color> circleAvatorColor = {
@@ -15,8 +13,8 @@ Map<String, Color> circleAvatorColor = {
 };
 
 class ListItem extends StatefulWidget {
-  const ListItem(
-      this.title, this.subtitle, this.classroom, this.startTime, this.endTime, this.tutBatch,
+  const ListItem(this.title, this.subtitle, this.classroom, this.startTime,
+      this.endTime, this.tutBatch,
       {super.key});
 
   final String title;
@@ -50,7 +48,6 @@ class _ListItemState extends State<ListItem> {
   }
 
   List formattedText() {
-    // widget.title.toList();
     List<String> titleList = widget.title.split(' ');
     List output = [];
     for (var i = 0; i < titleList.length; i += 4) {
@@ -73,12 +70,11 @@ class _ListItemState extends State<ListItem> {
   Widget flippableListItem() {
     return Padding(
       padding: const EdgeInsets.all(8.0),
-      child: FlipCard(
-        direction: FlipDirection.HORIZONTAL,
-        side: CardSide.FRONT,
-        front: Container(
-          margin: const EdgeInsets.all(8.0),
-          child: Row(
+      child: ListTile(
+        title: FlipCard(
+          direction: FlipDirection.HORIZONTAL,
+          side: CardSide.FRONT,
+          front: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Row(
@@ -93,8 +89,9 @@ class _ListItemState extends State<ListItem> {
                       style: TextStyle(
                           fontWeight: FontWeight.bold,
                           color: Colors.black,
-                          fontFamily:
-                              DefaultTextStyle.of(context).style.fontFamily),
+                          fontFamily: DefaultTextStyle.of(context)
+                              .style
+                              .fontFamily),
                     ),
                   ),
                   Padding(
@@ -104,8 +101,9 @@ class _ListItemState extends State<ListItem> {
                       style: TextStyle(
                           fontWeight: FontWeight.bold,
                           fontSize: 18,
-                          fontFamily:
-                              DefaultTextStyle.of(context).style.fontFamily),
+                          fontFamily: DefaultTextStyle.of(context)
+                              .style
+                              .fontFamily),
                     ),
                   ),
                 ],
@@ -117,6 +115,7 @@ class _ListItemState extends State<ListItem> {
                   Text(
                     widget.startTime,
                     style: TextStyle(
+                        fontSize: 12,
                         fontFamily:
                             DefaultTextStyle.of(context).style.fontFamily),
                   ),
@@ -126,6 +125,7 @@ class _ListItemState extends State<ListItem> {
                   Text(
                     widget.endTime,
                     style: TextStyle(
+                        fontSize: 12,
                         fontFamily:
                             DefaultTextStyle.of(context).style.fontFamily),
                   ),
@@ -133,99 +133,88 @@ class _ListItemState extends State<ListItem> {
               )
             ],
           ),
-        ),
-        back: Container(
-            alignment: Alignment.centerLeft,
-            margin: const EdgeInsets.all(8.0),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: [
-                    SizedBox(
-                      height: MediaQuery.of(context).size.height * 0.05,
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 10),
-                      child: RichText(
-                        textAlign: TextAlign.left,
-                        text: TextSpan(
-                          style: DefaultTextStyle.of(context).style,
-                          children: formattedText()
-                              .toString()
-                              .trim()
-                              .split('-')
-                              .join('\n')
-                              .replaceAll('[', '')
-                              .replaceAll(']', '')
-                              .replaceAll('-', '')
-                              .replaceAll(',', '')
-                              .split('-')
-                              .map((str) {
-                            if (str.contains('A1') ||
-                                str.contains('A2') ||
-                                str.contains('A3')) {
-                              return TextSpan(
-                                  text: '$str\n',
-                                  style: const TextStyle(
-                                      fontWeight: FontWeight.bold));
-                            } else {
-                              return TextSpan(text: '$str\n');
-                            }
-                          }).toList(),
+          back: Container(
+              alignment: Alignment.centerLeft,
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      SizedBox(
+                        height: MediaQuery.of(context).size.height * 0.05,
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 10),
+                        child: RichText(
+                          textAlign: TextAlign.left,
+                          text: TextSpan(
+                            style: DefaultTextStyle.of(context).style,
+                            children: formattedText()
+                                .toString()
+                                .trim()
+                                .split('-')
+                                .join('\n')
+                                .replaceAll('[', '')
+                                .replaceAll(']', '')
+                                .replaceAll('-', '')
+                                .replaceAll(',', '')
+                                .split('-')
+                                .map((str) {
+                              if (str.contains('A1')) {
+                                return TextSpan(
+                                    text: ' $str\n',
+                                    style: const TextStyle(
+                                        fontWeight: FontWeight.w500));
+                              } else if (str.contains('A2') ||
+                                  str.contains('A3')) {
+                                return TextSpan(
+                                    text: '$str\n',
+                                    style: const TextStyle(
+                                        fontWeight: FontWeight.w500));
+                              } else {
+                                return TextSpan(text: '$str\n');
+                              }
+                            }).toList(),
+                          ),
                         ),
                       ),
-                    ),
-                  ],
-                ),
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.end,
-                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                  children: [
-                    Text(widget.startTime),
-                    SizedBox(
-                      height: MediaQuery.of(context).size.height * 0.1,
-                    ),
-                    Text(widget.endTime),
-                  ],
-                ),
-              ],
-            )
-            //[A1,: [ADS, (PGC,) (B207,), A3,: ITWLL, (VAMI,) (B206,), A2,: SS, (PRR,) (B205])]
-            ),
-        // autoFlipDuration: const Duration(
-        //     seconds:
-        //         2), // The flip effect will work automatically after the 2 seconds
+                    ],
+                  ),
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.end,
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    children: [
+                      Text(
+                        widget.startTime,
+                        style: TextStyle(
+                            fontSize: 12,
+                            fontFamily: DefaultTextStyle.of(context)
+                                .style
+                                .fontFamily),
+                      ),
+                      SizedBox(
+                        height: MediaQuery.of(context).size.height * 0.1,
+                      ),
+                      Text(
+                        widget.endTime,
+                        style: TextStyle(
+                            fontSize: 12,
+                            fontFamily: DefaultTextStyle.of(context)
+                                .style
+                                .fontFamily),
+                      ),
+                    ],
+                  ),
+                ],
+              )
+              //[A1,: [ADS, (PGC,) (B207,), A3,: ITWLL, (VAMI,) (B206,), A2,: SS, (PRR,) (B205])]
+              ),
+        ),
       ),
     );
-    // return FlipCard(
-    //   margin: const EdgeInsets.all(8.0),
-    //   child: GestureDetector(
-    //     onTap: () {
-    //       setState(() {
-    //         isExpanded = !isExpanded;
-    //       });
-    //     },
-    //     child: AnimatedContainer(
-    //       duration: const Duration(milliseconds: 300),
-    //       transform: Matrix4.rotationY(isExpanded ? 3.14 : 0),
-    //       child: ListTile(
-    //         title: const Text('Lab'),
-    //         subtitle: isExpanded ? Text(widget.title) : null,
-    //         trailing: Column(
-    //           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-    //           children: [
-    //             Text(widget.startTime),
-    //             Text(widget.endTime),
-    //           ],
-    //         ),
-    //       ),
-    //     ),
-    //   ),
-    // );
   }
 
   listContent() {
@@ -250,69 +239,56 @@ class _ListItemState extends State<ListItem> {
     } else if (widget.title == 'No classes!') {
       return null;
     }
-    //   const ListTile(
-    //     title: Center(
-    //       child: Text(
-    //         'No classes!',
-    //         style: TextStyle(fontWeight: FontWeight.bold),
-    //       ),
-    //     ),
-    //   );
-    // }
     else if (widget.title.length >= 10) {
       return flippableListItem();
     } else if (widget.title.contains('TUT')) {
-      return Card(
-        child: ListTile(
-          title: Text(
-            '${widget.title} - ${widget.tutBatch}',
+      return ListTile(
+        title: Text(
+          '${widget.title} - ${widget.tutBatch}',
+          style: const TextStyle(fontWeight: FontWeight.bold),
+        ),
+        subtitle: Text(widget.subtitle),
+        leading: CircleAvatar(
+          backgroundColor: circleAvatorColor[widget.title] ??
+              const Color.fromARGB(255, 241, 81, 134),
+          radius: 25.0,
+          child: Text(
+            widget.classroom,
             style: const TextStyle(fontWeight: FontWeight.bold),
           ),
-          subtitle: Text(widget.subtitle),
-          leading: CircleAvatar(
-            backgroundColor: circleAvatorColor[widget.title] ??
-                const Color.fromARGB(255, 241, 81, 134),
-            radius: 25.0,
-            child: Text(
-              widget.classroom,
-              style: const TextStyle(fontWeight: FontWeight.bold),
-            ),
-          ),
-          trailing: Column(
-            crossAxisAlignment: CrossAxisAlignment.end,
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-            children: [
-              Text(widget.startTime),
-              Text(widget.endTime),
-            ],
-          ),
+        ),
+        trailing: Column(
+          crossAxisAlignment: CrossAxisAlignment.end,
+          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+          children: [
+            Text(widget.startTime),
+            Text(widget.endTime),
+          ],
         ),
       );
     } else {
-      return Card(
-        child: ListTile(
-          title: Text(
-            widget.title,
+      return ListTile(
+        title: Text(
+          widget.title,
+          style: const TextStyle(fontWeight: FontWeight.bold),
+        ),
+        subtitle: Text(widget.subtitle),
+        leading: CircleAvatar(
+          backgroundColor: circleAvatorColor[widget.title] ??
+              const Color.fromARGB(255, 241, 81, 134),
+          radius: 25.0,
+          child: Text(
+            widget.classroom,
             style: const TextStyle(fontWeight: FontWeight.bold),
           ),
-          subtitle: Text(widget.subtitle),
-          leading: CircleAvatar(
-            backgroundColor: circleAvatorColor[widget.title] ??
-                const Color.fromARGB(255, 241, 81, 134),
-            radius: 25.0,
-            child: Text(
-              widget.classroom,
-              style: const TextStyle(fontWeight: FontWeight.bold),
-            ),
-          ),
-          trailing: Column(
-            crossAxisAlignment: CrossAxisAlignment.end,
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-            children: [
-              Text(widget.startTime),
-              Text(widget.endTime),
-            ],
-          ),
+        ),
+        trailing: Column(
+          crossAxisAlignment: CrossAxisAlignment.end,
+          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+          children: [
+            Text(widget.startTime),
+            Text(widget.endTime),
+          ],
         ),
       );
     }
@@ -328,27 +304,6 @@ class _ListItemState extends State<ListItem> {
           borderRadius: BorderRadius.circular(12.0),
         ),
         child: listContent(),
-        // ListTile(
-        //   title: Text(
-        //     title,
-        //     style: const TextStyle(fontWeight: FontWeight.bold),
-        //   ),
-        //   subtitle: Text(subtitle),
-        //   leading: CircleAvatar(
-        //     radius: 25.0,
-        //     child: Text(
-        //       classroom,
-        //       style: const TextStyle(fontWeight: FontWeight.bold),
-        //     ),
-        //   ),
-        //   trailing: Column(
-        //     mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-        //     children: [
-        //       Text(startTime),
-        //       Text(endTime),
-        //     ],
-        //   ),
-        // ), // listContent(),
       ),
     );
   }

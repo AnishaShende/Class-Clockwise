@@ -10,7 +10,7 @@ class HolidayPage extends StatelessWidget {
         child: Opacity(
             opacity: 0.6,
             child: Image.asset(
-              'relax.jpg',
+              'assets/relax.jpg',
               fit: BoxFit.cover,
               width: 300,
               height: 300,

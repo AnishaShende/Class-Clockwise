@@ -1,5 +1,4 @@
 import 'package:class_clockwise/pages/home_page.dart';
-import 'package:class_clockwise/pages/time_table_page.dart';
 import 'package:flutter/material.dart';
 
 void main() {

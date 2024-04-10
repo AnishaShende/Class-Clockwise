@@ -1,10 +1,7 @@
 import 'package:class_clockwise/models/time_table_model.dart';
 import 'package:class_clockwise/pages/list_item.dart';
 import 'package:class_clockwise/pages/holiday_page.dart';
-import 'package:class_clockwise/pages/settings_page.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 import 'package:intl/intl.dart';
 
 class TimeTable extends StatefulWidget {
@@ -14,7 +11,10 @@ class TimeTable extends StatefulWidget {
   State<TimeTable> createState() => _TimeTableState();
 }
 
-class _TimeTableState extends State<TimeTable> {
+class _TimeTableState extends State<TimeTable>
+    with SingleTickerProviderStateMixin {
+  late AnimationController _controller;
+  late ScrollController _scrollController;
   List<TimetableData> timetableData = [];
   String currentTime = '';
   String currentDay = '';
@@ -25,6 +25,7 @@ class _TimeTableState extends State<TimeTable> {
   String currentInitials = '';
   String formattedText = '';
   String tutBatch = '';
+  bool isLoading = false;
   final List<String> days = [
     'MONDAY',
     'TUESDAY',
@@ -38,6 +39,11 @@ class _TimeTableState extends State<TimeTable> {
   @override
   void initState() {
     super.initState();
+    _controller = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 500),
+    );
+    _scrollController = ScrollController();
     // Get the current day of the week
     final DateTime now = DateTime.now();
     final DateFormat formatter = DateFormat('EEEE');
@@ -47,18 +53,49 @@ class _TimeTableState extends State<TimeTable> {
     fetchData();
   }
 
+  @override
+  void dispose() {
+    _controller.dispose();
+    _scrollController.dispose();
+    super.dispose();
+  }
+
   Future<void> fetchData() async {
     try {
+      setState(() {
+        isLoading = true;
+      });
+
       currentTime = currentTime == 'THURSDAY'
           ? currentTime.substring(0, 5)
           : currentTime.substring(0, 3);
       final List<TimetableData> data = await TimetableData.fetchDataFromAPI();
       timetableData = data.where((data) => data.day == currentTime).toList();
 
-      setState(() {});
+      setState(() {
+        isLoading = false;
+      });
     } catch (e) {
-      print('Error fetching data: $e');
+      // print('Error fetching data: $e');
+      SnackBar(content: Text('Error fetching data: $e'));
+
+      // Set isLoading back to false if an error occurs
+      setState(() {
+        isLoading = false;
+      });
     }
+  }
+
+  showLoadingIndicator() {
+    return Center(
+      child: CircularProgressIndicator(
+        color: Theme.of(context).colorScheme.onPrimary,
+        backgroundColor:
+            Theme.of(context).colorScheme.background.withOpacity(0.7),
+        valueColor: AlwaysStoppedAnimation<Color>(
+            Theme.of(context).colorScheme.onPrimaryContainer),
+      ),
+    );
   }
 
   dropMenu(String text) {
@@ -83,6 +120,7 @@ class _TimeTableState extends State<TimeTable> {
                     child: Column(
                       children: days.map((day) {
                         return RadioListTile(
+                          selected: true,
                           title: Text(
                             day,
                             style: TextStyle(
@@ -98,13 +136,13 @@ class _TimeTableState extends State<TimeTable> {
                             setState(() {
                               currentDay = value.toString();
                               currentTime = value.toString();
-                              print(value);
+                              // print(value);
                               fetchData();
                             });
                             Navigator.pop(context);
                           },
                         );
-                      }).toList(), // Convert the iterable to a list
+                      }).toList(),
                     ),
                   ),
                 ),
@@ -138,18 +176,20 @@ class _TimeTableState extends State<TimeTable> {
   }
 
   Widget content() {
+    _controller.animateTo(1.0,
+        duration: const Duration(milliseconds: 500),
+        curve: Curves.fastEaseInToSlowEaseOut);
+    _scrollController.animateTo(1.0,
+        duration: const Duration(milliseconds: 500), curve: Curves.easeInOut);
     if (currentTime == 'SUN' || currentTime == 'SAT') {
       return Column(
         crossAxisAlignment: CrossAxisAlignment.center,
-        // mainAxisAlignment: MainAxisAlignment.center,
         children: [
           Padding(
               padding: const EdgeInsets.all(5.0),
               child: Center(
                 child: dropMenu(currentDay),
-              )
-              // Text(currentDay),
-              ),
+              )),
           SizedBox(
             height: MediaQuery.of(context).size.height * 0.15,
           ),
@@ -178,24 +218,27 @@ class _TimeTableState extends State<TimeTable> {
           Padding(
             padding: const EdgeInsets.all(5.0),
             child: Center(child: dropMenu(currentDay)),
-            // Text(currentDay),
           ),
           const SizedBox(
             height: 5,
           ),
           Expanded(
             child: ListView.builder(
+              controller: _scrollController,
               padding: const EdgeInsets.fromLTRB(15, 8, 15, 0),
               itemCount: timetableData.length,
               itemBuilder: (context, index) {
                 var data = timetableData[index];
-                return ListItem(
-                  filter1(data.subjects, index),
-                  currentInitials,
-                  classroom,
-                  startTime,
-                  endTime,
-                  tutBatch,
+                return ScaleTransition(
+                  scale: _controller,
+                  child: ListItem(
+                    filter1(data.subjects, index),
+                    currentInitials,
+                    classroom,
+                    startTime,
+                    endTime,
+                    tutBatch,
+                  ),
                 );
               },
             ),
@@ -275,6 +318,6 @@ class _TimeTableState extends State<TimeTable> {
 
   @override
   Widget build(BuildContext context) {
-    return content();
+    return isLoading ? showLoadingIndicator() : content();
   }
 }

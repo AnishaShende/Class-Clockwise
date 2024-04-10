@@ -24,7 +24,7 @@ class TimetableData {
   }
 
   static Future<List<TimetableData>> fetchDataFromAPI() async {
-    print('fetchDataFromAPI');
+    // print('fetchDataFromAPI');
     final response = await http.get(Uri.parse(
         'https://script.google.com/macros/s/AKfycbxL2PsxUE1ytvLcQ_N_AocnmHNwIR08jmpmiX6aP86g7hnoM3qxF9Vx8_sYZ3W18z_N/exec'));
     // print('response: ${response.body}');
@@ -32,7 +32,8 @@ class TimetableData {
       final List<dynamic> jsonData = jsonDecode(response.body);
       return jsonData.map((json) => TimetableData.fromJson(json)).toList();
     } else {
-      throw Exception('Failed to load timetable data');
+      throw Exception(
+          'Failed to load timetable data. Please check your internet connection :(');
     }
   }
 }

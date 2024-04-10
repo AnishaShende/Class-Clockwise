@@ -15,12 +15,33 @@ class SettingsPage extends StatelessWidget {
       backgroundColor:
           Theme.of(context).colorScheme.background.withOpacity(0.7),
       body: Container(
+        padding: const EdgeInsets.fromLTRB(10, 10, 10, 10),
         child: ElevatedButton(
+          style: ButtonStyle(
+            backgroundColor: MaterialStateProperty.all<Color>(
+              Theme.of(context).colorScheme.primary,
+            ),
+            shape: MaterialStateProperty.all<RoundedRectangleBorder>(
+              RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(5),
+              ),
+            ),
+          ),
           onPressed: () {
-            // Show "View TimeTable" option
             _openWithDialog(context);
           },
-          child: const Text('View TimeTable'),
+          child: ListTile(
+            title: Text(
+              'View TimeTable',
+              style: TextStyle(
+                color: Theme.of(context).colorScheme.background,
+              ),
+            ),
+            leading: Icon(
+              Icons.table_chart,
+              color: Theme.of(context).colorScheme.background,
+            ),
+          ),
         ),
       ),
     );
@@ -28,8 +49,8 @@ class SettingsPage extends StatelessWidget {
 
   Future<void> _openWithDialog(BuildContext context) async {
     try {
-      const String assetPath =
-          'assets/timetablesheet.xlsx'; // Path to your Google Sheets file in the assets folder
+      // Path to your Google Sheets file in the assets folder
+      const String assetPath = 'assets/timetablesheet.xlsx';
       final String tempPath = (await getTemporaryDirectory()).path;
       final String tempFilePath = '$tempPath/timetablesheet.xlsx';
 
@@ -50,11 +71,13 @@ class SettingsPage extends StatelessWidget {
         // File opened successfully or no app to open
       } else {
         // Handle error
-        print('Error: ${result.message}');
+        // print('Error: ${result.message}');
+        SnackBar(content: Text('Error: ${result.message}'));
       }
     } catch (e) {
-      print('Error: $e');
+      // print('Error: $e');
       // Handle errors here
+      SnackBar(content: Text('Error: $e'));
     }
   }
 }
