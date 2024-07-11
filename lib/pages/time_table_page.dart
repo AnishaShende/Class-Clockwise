@@ -3,6 +3,7 @@ import 'package:class_clockwise/pages/list_item.dart';
 import 'package:class_clockwise/pages/holiday_page.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:workmanager/workmanager.dart';
 
 class TimeTable extends StatefulWidget {
   const TimeTable({super.key});
@@ -314,6 +315,19 @@ class _TimeTableState extends State<TimeTable>
         return formattedText;
       }
     }
+  }
+
+  Future<void> scheduleBackgroundTask(
+      DateTime lectureTime, String lectureTitle) async {
+    await Workmanager().registerOneOffTask(
+      "uniqueName_${lectureTitle}_${lectureTime.toIso8601String()}", // Unique name for the task
+      "simpleTask",
+      inputData: {
+        "lectureTime": lectureTime.toIso8601String(),
+        "lectureTitle": lectureTitle,
+      },
+      initialDelay: Duration(seconds: 5), // Adjust the delay as needed
+    );
   }
 
   @override
