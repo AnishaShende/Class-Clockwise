@@ -130,12 +130,22 @@ class _FlipableListState extends State<FlipableList> {
                                       .replaceAll(',', '')
                                       .split('-')
                                       .map((str) {
-                                    return TextSpan(
-                                        text: '$str\n',
-                                        style: const TextStyle(
-                                            fontWeight: FontWeight.w500));
-                                  }).toList(),
-                                )
+                                    if (str.contains('AI')) {
+                                      return TextSpan(
+                                          text: ' $str\n',
+                                          style: const TextStyle(
+                                              fontWeight: FontWeight.w500));
+                                    } else if (str.contains('BIDA') ||
+                                        str.contains('IOT') ||
+                                        str.contains('Mainframe')) {
+                                      return TextSpan(
+                                          text: '$str\n',
+                                          style: const TextStyle(
+                                              fontWeight: FontWeight.w500));
+                                    } else {
+                                      return TextSpan(text: '$str\n');
+                                    }
+                                  }).toList())
                               : TextSpan(
                                   style: DefaultTextStyle.of(context).style,
                                   children: widget.formattedString

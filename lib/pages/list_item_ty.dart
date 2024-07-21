@@ -40,7 +40,10 @@ class _ListItemTyState extends State<ListItemTy> {
 
   List formattedText1() {
     List<String> titleList = widget.title.split(' ');
-    List output = [];
+    // print(
+        // "**********************1 $titleList"); //  [[DAAL,, A1,, MPK,, B207,, CNL,, A2,, NNS,, B206,, DSML,, A3,, PDM,, B205]]
+    List output =
+        []; // [A1,, MPK,, B207,, CNL,, A2,, NNS,, B206,, DSML,, A3,, PDM,, B205]]
     for (var i = 0; i < titleList.length; i += 4) {
       output.add(
           "${titleList[i + 1].trim()}: ${titleList[i]} (${titleList[i + 2]}) (${titleList[i + 3]})");
@@ -60,21 +63,26 @@ class _ListItemTyState extends State<ListItemTy> {
 
   List formattedText2() {
     List<String> titleList = widget.title.split(' ');
+    titleList.removeAt(0);
+    // print("**********************2 $titleList");
     List output = [];
-    for (var i = 1; i < titleList.length; i += 3) {
+    for (var i = 0; i < titleList.length; i += 3) {
       output.add(
-          "${titleList[i + 1].trim()}: ${titleList[i]} (${titleList[i + 2]}) (${titleList[i + 3]})");
+          "${titleList[i].trim()}: ${titleList[i + 1]} (${titleList[i + 2]})");
       // batch.add(titleList[i + 1]);
+
       labSubjects.add(titleList[i]);
-      labInitials.add(titleList[i + 2]);
-      labRooms.add(titleList[i + 3]);
+      labInitials.add(titleList[i + 1]);
+      labRooms.add(titleList[i + 2]);
       output.add('-');
+      // print("printing output!!!!!!!!! $output");
 
       // "${titleList[i + 1]}: ${titleList[i]} (${titleList[i + 2]}) (${titleList[i + 3]})";
       // print(output);
       // Elective Mainframe(YKS)(B104), BIDA(MPK)(B301), IOT(YVD)(B101), AI(MPM)(B201)
       // [Elective, Mainframe, YKS, B104, .. ]
     }
+    // print("*****output $output");
     return output; // [ADS, A1, PGC, B207, ITWLL, A3, VAMI, B206, SS, A2, PRR, B205]
 
     // 1, 5, 9
@@ -101,16 +109,6 @@ class _ListItemTyState extends State<ListItemTy> {
       );
     } else if (widget.title == 'No classes!') {
       return null;
-    } else if (widget.title.length >= 10) {
-      return FlipableList(
-          widget.title,
-          widget.subtitle,
-          widget.classroom,
-          widget.startTime,
-          widget.endTime,
-          widget.tutBatch,
-          formattedText1(),
-          false);
     } else if (widget.title.contains('Elective')) {
       return FlipableList(
           widget.title,
@@ -121,6 +119,16 @@ class _ListItemTyState extends State<ListItemTy> {
           widget.tutBatch,
           formattedText2(),
           true);
+    } else if (widget.title.contains('A3')) {
+      return FlipableList(
+          widget.title,
+          widget.subtitle,
+          widget.classroom,
+          widget.startTime,
+          widget.endTime,
+          widget.tutBatch,
+          formattedText1(),
+          false);
     } else {
       return ListTile(
         title: Text(
