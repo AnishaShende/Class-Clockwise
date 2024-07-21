@@ -12,8 +12,8 @@ Map<String, Color> circleAvatorColor = {
   'SS': Colors.brown,
 };
 
-class ListItem extends StatefulWidget {
-  const ListItem(this.title, this.subtitle, this.classroom, this.startTime,
+class ListItemSy extends StatefulWidget {
+  const ListItemSy(this.title, this.subtitle, this.classroom, this.startTime,
       this.endTime, this.tutBatch,
       {super.key});
 
@@ -25,10 +25,10 @@ class ListItem extends StatefulWidget {
   final String tutBatch;
 
   @override
-  State<ListItem> createState() => _ListItemState();
+  State<ListItemSy> createState() => _ListItemSyState();
 }
 
-class _ListItemState extends State<ListItem> {
+class _ListItemSyState extends State<ListItemSy> {
   List batch = [];
   List labSubjects = [];
   List labInitials = [];
@@ -89,9 +89,8 @@ class _ListItemState extends State<ListItem> {
                       style: TextStyle(
                           fontWeight: FontWeight.bold,
                           color: Colors.black,
-                          fontFamily: DefaultTextStyle.of(context)
-                              .style
-                              .fontFamily),
+                          fontFamily:
+                              DefaultTextStyle.of(context).style.fontFamily),
                     ),
                   ),
                   Padding(
@@ -101,9 +100,8 @@ class _ListItemState extends State<ListItem> {
                       style: TextStyle(
                           fontWeight: FontWeight.bold,
                           fontSize: 18,
-                          fontFamily: DefaultTextStyle.of(context)
-                              .style
-                              .fontFamily),
+                          fontFamily:
+                              DefaultTextStyle.of(context).style.fontFamily),
                     ),
                   ),
                 ],
@@ -191,9 +189,8 @@ class _ListItemState extends State<ListItem> {
                         widget.startTime,
                         style: TextStyle(
                             fontSize: 12,
-                            fontFamily: DefaultTextStyle.of(context)
-                                .style
-                                .fontFamily),
+                            fontFamily:
+                                DefaultTextStyle.of(context).style.fontFamily),
                       ),
                       SizedBox(
                         height: MediaQuery.of(context).size.height * 0.1,
@@ -202,9 +199,8 @@ class _ListItemState extends State<ListItem> {
                         widget.endTime,
                         style: TextStyle(
                             fontSize: 12,
-                            fontFamily: DefaultTextStyle.of(context)
-                                .style
-                                .fontFamily),
+                            fontFamily:
+                                DefaultTextStyle.of(context).style.fontFamily),
                       ),
                     ],
                   ),
@@ -238,8 +234,7 @@ class _ListItemState extends State<ListItem> {
       );
     } else if (widget.title == 'No classes!') {
       return null;
-    }
-    else if (widget.title.length >= 10) {
+    } else if (widget.title.length >= 10) {
       return flippableListItem();
     } else if (widget.title.contains('TUT')) {
       return ListTile(

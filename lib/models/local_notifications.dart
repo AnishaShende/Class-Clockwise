@@ -1,22 +1,17 @@
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:rxdart/rxdart.dart';
 import 'package:timezone/timezone.dart' as tz;
-import 'package:workmanager/workmanager.dart';
 
 class LocalNotifications {
   static final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
       FlutterLocalNotificationsPlugin();
   static final onClickNotification = BehaviorSubject<String>();
 
-  static void onNotificationTap(
-    NotificationResponse notificationResponse,
-  ) {
+  static void onNotificationTap(NotificationResponse notificationResponse) {
     onClickNotification.add(notificationResponse.payload!);
   }
 
   static Future init() async {
-    FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
-        FlutterLocalNotificationsPlugin();
     const AndroidInitializationSettings initializationSettingsAndroid =
         AndroidInitializationSettings('@mipmap/launcher_icon');
     final DarwinInitializationSettings initializationSettingsDarwin =
@@ -34,56 +29,65 @@ class LocalNotifications {
             iOS: initializationSettingsDarwin,
             macOS: initializationSettingsDarwin,
             linux: initializationSettingsLinux);
-    flutterLocalNotificationsPlugin.initialize(initializationSettings,
-        onDidReceiveNotificationResponse: onNotificationTap,
-        onDidReceiveBackgroundNotificationResponse: onNotificationTap);
+    await flutterLocalNotificationsPlugin.initialize(
+      initializationSettings,
+      onDidReceiveNotificationResponse: onNotificationTap,
+      onDidReceiveBackgroundNotificationResponse: onNotificationTap,
+    );
   }
 
-  static void callbackDispatcher() {
-    Workmanager().executeTask((task, inputData) async {
-      if (inputData != null &&
-          inputData.containsKey('lectureTime') &&
-          inputData.containsKey('lectureTitle')) {
-        final lectureTime = DateTime.parse(inputData['lectureTime']);
-        final lectureTitle = inputData['lectureTitle'];
-        final tz.TZDateTime scheduledDateTimeInLocal =
-            tz.TZDateTime.from(lectureTime, tz.local)
-                .subtract(Duration(minutes: 5));
+  static Future<void> scheduleNotification({
+    required DateTime lectureTime,
+    required String lectureTitle,
+  }) async {
+    final tz.TZDateTime scheduledDateTimeInLocal =
+        tz.TZDateTime.from(lectureTime, tz.local)
+            .subtract(Duration(minutes: 5));
 
-        await flutterLocalNotificationsPlugin.zonedSchedule(
-          0,
-          'Upcoming Lecture',
-          'Your lecture $lectureTitle is starting in 5 minutes.',
-          scheduledDateTimeInLocal,
-          const NotificationDetails(
-              android: AndroidNotificationDetails(
-                  'channel 3', 'class clockwise notifications',
-                  channelDescription: 'your channel description',
-                  importance: Importance.max,
-                  priority: Priority.high,
-                  ticker: 'ticker')),
-          androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
-          uiLocalNotificationDateInterpretation:
-              UILocalNotificationDateInterpretation.absoluteTime,
-          // payload: payload
-          matchDateTimeComponents: DateTimeComponents.time,
-        );
-      }
-      return Future.value(true);
-    });
+    await flutterLocalNotificationsPlugin.zonedSchedule(
+      3,
+      'Upcoming Lecture',
+      'Your lecture $lectureTitle is starting in 5 minutes.',
+      scheduledDateTimeInLocal,
+      const NotificationDetails(
+        android: AndroidNotificationDetails(
+          '3',
+          'class clockwise notifications',
+          channelDescription: 'your channel description',
+          importance: Importance.max,
+          priority: Priority.high,
+          ticker: 'ticker',
+        ),
+      ),
+      androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
+      uiLocalNotificationDateInterpretation:
+          UILocalNotificationDateInterpretation.absoluteTime,
+      matchDateTimeComponents: DateTimeComponents.time,
+    );
   }
 
-  // static Future showScheduleNotification({
-  //   // required String title,
-  //   // required String body,
-  //   // required String payload,
-  // }) async {
-  //   // tz.initializeTimeZones();
-
-  // }
-  //  return Future.value(true);
+  static Future showScheduleNotification({
+    required String title,
+    required String body,
+    required String payload,
+  }) async {
+    const AndroidNotificationDetails androidPlatformChannelSpecifics =
+        AndroidNotificationDetails(
+      '3',
+      'your channel nameclass clockwise notifications',
+      channelDescription: 'your channel description',
+      importance: Importance.max,
+      priority: Priority.high,
+      ticker: 'ticker',
+    );
+    const NotificationDetails platformChannelSpecifics =
+        NotificationDetails(android: androidPlatformChannelSpecifics);
+    await flutterLocalNotificationsPlugin.show(
+      3,
+      title,
+      body,
+      platformChannelSpecifics,
+      // payload: payload,
+    );
+  }
 }
-// LocalNotifications.showScheduleNotification(
-//                       title: "Schedule Notification",
-//                       body: "This is a Schedule Notification",
-//                       payload: "This is schedule data");

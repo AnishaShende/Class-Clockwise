@@ -1,9 +1,23 @@
+import 'dart:convert';
 import 'package:class_clockwise/models/time_table_model.dart';
-import 'package:class_clockwise/pages/list_item.dart';
 import 'package:class_clockwise/pages/holiday_page.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import 'package:workmanager/workmanager.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+
+import '../component/drop_menu.dart';
+import '../models/local_notifications.dart';
+import 'list_item_ty.dart';
+
+final List<String> days = [
+  'MONDAY',
+  'TUESDAY',
+  'WEDNESDAY',
+  'THURSDAY',
+  'FRIDAY',
+  'SATURDAY',
+  'SUNDAY'
+];
 
 class TimeTable extends StatefulWidget {
   const TimeTable({super.key});
@@ -27,15 +41,6 @@ class _TimeTableState extends State<TimeTable>
   String formattedText = '';
   String tutBatch = '';
   bool isLoading = false;
-  final List<String> days = [
-    'MONDAY',
-    'TUESDAY',
-    'WEDNESDAY',
-    'THURSDAY',
-    'FRIDAY',
-    'SATURDAY',
-    'SUNDAY'
-  ];
 
   @override
   void initState() {
@@ -51,7 +56,7 @@ class _TimeTableState extends State<TimeTable>
     final String formattedDay = formatter.format(now);
     currentDay = formattedDay;
     currentTime = formattedDay.toUpperCase();
-    fetchData();
+    loadTimetable();
   }
 
   @override
@@ -59,6 +64,22 @@ class _TimeTableState extends State<TimeTable>
     _controller.dispose();
     _scrollController.dispose();
     super.dispose();
+  }
+
+  Future<void> loadTimetable() async {
+    final prefs = await SharedPreferences.getInstance();
+    final savedData = prefs.getString('timetableData');
+    if (savedData != null) {
+      print(
+          '****************************************************Loading timetable data from SharedPreferences: $savedData');
+      final List<dynamic> jsonData = jsonDecode(savedData);
+      timetableData =
+          jsonData.map((json) => TimetableData.fromJson(json)).toList();
+      filterTimetableData();
+      setState(() {});
+    } else {
+      fetchData();
+    }
   }
 
   Future<void> fetchData() async {
@@ -73,105 +94,76 @@ class _TimeTableState extends State<TimeTable>
       final List<TimetableData> data = await TimetableData.fetchDataFromAPI();
       timetableData = data.where((data) => data.day == currentTime).toList();
 
+      // Save data to SharedPreferences
+      final prefs = await SharedPreferences.getInstance();
+      prefs.setString('timetableData', jsonEncode(data));
+
+      // Schedule notifications for each lecture in today's timetable
+      for (var lecture in timetableData) {
+        final lectureTime =
+            DateFormat('HH:mm').parse(lecture.time.split('-').first.trim());
+        print('*************************lecturetime: $lectureTime');
+        final now = DateTime.now();
+        final scheduledDateTime = DateTime(now.year, now.month, now.day,
+                lectureTime.hour, lectureTime.minute)
+            .subtract(Duration(minutes: 5));
+        print('*************************scheduledDateTime: $scheduledDateTime');
+        if (scheduledDateTime.isAfter(now)) {
+          print('scheduledDateTime is after now!');
+          await LocalNotifications.scheduleNotification(
+            lectureTime: scheduledDateTime,
+            lectureTitle: lecture.subjects,
+          );
+        }
+      }
+
+      filterTimetableData();
       setState(() {
         isLoading = false;
       });
     } catch (e) {
-      // print('Error fetching data: $e');
       SnackBar(content: Text('Error fetching data: $e'));
-
-      // Set isLoading back to false if an error occurs
       setState(() {
         isLoading = false;
       });
     }
   }
 
+  // void filterTimetableData() {
+  //   timetableData =
+  //       timetableData.where((data) => data.day == currentTime).toList();
+  // }
+  void filterTimetableData() {
+    setState(() {
+      timetableData =
+          timetableData.where((data) => data.day == currentTime).toList();
+    });
+  }
+
+  // Future<void> scheduleBackgroundTask(
+  //     DateTime lectureTime, String lectureTitle) async {
+  //   await Workmanager().registerOneOffTask(
+  //     "uniqueName_${lectureTitle}_${lectureTime.toIso8601String()}",
+  //     "simpleTask",
+  //     inputData: {
+  //       "lectureTime": lectureTime.toIso8601String(),
+  //       "lectureTitle": lectureTitle,
+  //     },
+  //     initialDelay: Duration(seconds: 5),
+  //   );
+  // }
+
+  Future<void> refreshTimetable() async {
+    await fetchData();
+  }
+
   showLoadingIndicator() {
     return Center(
       child: CircularProgressIndicator(
         color: Theme.of(context).colorScheme.onPrimary,
-        backgroundColor:
-            Theme.of(context).colorScheme.background.withOpacity(0.7),
+        backgroundColor: Theme.of(context).colorScheme.surface.withOpacity(0.7),
         valueColor: AlwaysStoppedAnimation<Color>(
             Theme.of(context).colorScheme.onPrimaryContainer),
-      ),
-    );
-  }
-
-  dropMenu(String text) {
-    return GestureDetector(
-      onTap: () {
-        showDialog(
-          context: context,
-          builder: (context) {
-            return Dialog(
-              alignment: Alignment.center,
-              backgroundColor: Theme.of(context).colorScheme.onPrimaryContainer,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(10),
-              ),
-              insetPadding: const EdgeInsets.fromLTRB(50, 100, 50, 100),
-              child: Center(
-                child: Container(
-                  height: MediaQuery.of(context).size.height * 0.5,
-                  width: MediaQuery.of(context).size.height * 0.5,
-                  alignment: Alignment.center,
-                  child: Center(
-                    child: Column(
-                      children: days.map((day) {
-                        return RadioListTile(
-                          selected: true,
-                          title: Text(
-                            day,
-                            style: TextStyle(
-                                fontSize: 15,
-                                fontWeight: FontWeight.bold,
-                                color:
-                                    Theme.of(context).colorScheme.background),
-                            textAlign: TextAlign.start,
-                          ),
-                          value: day,
-                          groupValue: currentDay,
-                          onChanged: (value) {
-                            setState(() {
-                              currentDay = value.toString();
-                              currentTime = value.toString();
-                              // print(value);
-                              fetchData();
-                            });
-                            Navigator.pop(context);
-                          },
-                        );
-                      }).toList(),
-                    ),
-                  ),
-                ),
-              ),
-            );
-          },
-        );
-      },
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Text(
-            text.toUpperCase(),
-            style: TextStyle(
-                fontSize: 17,
-                fontWeight: FontWeight.bold,
-                color: Theme.of(context).colorScheme.onPrimaryContainer),
-            textAlign: TextAlign.start,
-          ),
-          const SizedBox(
-            width: 2,
-          ),
-          Icon(
-            Icons.arrow_drop_down_rounded,
-            size: 30,
-            color: Theme.of(context).colorScheme.onPrimaryContainer,
-          ),
-        ],
       ),
     );
   }
@@ -189,7 +181,7 @@ class _TimeTableState extends State<TimeTable>
           Padding(
               padding: const EdgeInsets.all(5.0),
               child: Center(
-                child: dropMenu(currentDay),
+                child: DropMenu(currentDay, currentTime, filterTimetableData),
               )),
           SizedBox(
             height: MediaQuery.of(context).size.height * 0.15,
@@ -214,37 +206,42 @@ class _TimeTableState extends State<TimeTable>
         ],
       );
     } else {
-      return Column(
-        children: [
-          Padding(
-            padding: const EdgeInsets.all(5.0),
-            child: Center(child: dropMenu(currentDay)),
-          ),
-          const SizedBox(
-            height: 5,
-          ),
-          Expanded(
-            child: ListView.builder(
-              controller: _scrollController,
-              padding: const EdgeInsets.fromLTRB(15, 8, 15, 0),
-              itemCount: timetableData.length,
-              itemBuilder: (context, index) {
-                var data = timetableData[index];
-                return ScaleTransition(
-                  scale: _controller,
-                  child: ListItem(
-                    filter1(data.subjects, index),
-                    currentInitials,
-                    classroom,
-                    startTime,
-                    endTime,
-                    tutBatch,
-                  ),
-                );
-              },
+      return RefreshIndicator(
+        onRefresh: refreshTimetable,
+        child: Column(
+          children: [
+            Padding(
+              padding: const EdgeInsets.all(5.0),
+              child: Center(
+                  child:
+                      DropMenu(currentDay, currentTime, filterTimetableData)),
             ),
-          ),
-        ],
+            const SizedBox(
+              height: 5,
+            ),
+            Expanded(
+              child: ListView.builder(
+                controller: _scrollController,
+                padding: const EdgeInsets.fromLTRB(15, 8, 15, 0),
+                itemCount: timetableData.length,
+                itemBuilder: (context, index) {
+                  var data = timetableData[index];
+                  return ScaleTransition(
+                    scale: _controller,
+                    child: ListItemTy(
+                      filter1(data.subjects, index),
+                      currentInitials,
+                      classroom,
+                      startTime,
+                      endTime,
+                      tutBatch,
+                    ),
+                  );
+                },
+              ),
+            ),
+          ],
+        ),
       );
     }
   }
@@ -317,21 +314,18 @@ class _TimeTableState extends State<TimeTable>
     }
   }
 
-  Future<void> scheduleBackgroundTask(
-      DateTime lectureTime, String lectureTitle) async {
-    await Workmanager().registerOneOffTask(
-      "uniqueName_${lectureTitle}_${lectureTime.toIso8601String()}", // Unique name for the task
-      "simpleTask",
-      inputData: {
-        "lectureTime": lectureTime.toIso8601String(),
-        "lectureTitle": lectureTitle,
-      },
-      initialDelay: Duration(seconds: 5), // Adjust the delay as needed
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
-    return isLoading ? showLoadingIndicator() : content();
+    return
+        // Scaffold(
+        //   appBar: AppBar(
+        //     centerTitle: true,
+        //     title: const Text(
+        //       'Time Table',
+        //     ),
+        //   ),
+        //   body:
+        isLoading ? showLoadingIndicator() : content();
+    // );
   }
 }

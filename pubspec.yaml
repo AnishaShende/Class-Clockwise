@@ -44,10 +44,10 @@ dependencies:
   path_provider: ^2.1.2
   flutter_launcher_icons: ^0.13.1
   flutter_local_notifications: ^17.2.1+1
-  workmanager: ^0.5.2
   flutter_timezone: ^2.0.1
   rxdart: ^0.28.0
   riverpod: ^2.5.1
+  shared_preferences: ^2.2.3
 
 dev_dependencies:
   flutter_test:
