@@ -3,13 +3,27 @@ import 'package:flutter/material.dart';
 import 'package:flip_card/flip_card.dart';
 
 Map<String, Color> circleAvatorColor = {
-  'DBMS': const Color.fromARGB(255, 243, 68, 126),
-  'ADS': const Color.fromARGB(255, 8, 137, 242),
-  'OS': Colors.green,
-  'PS': const Color.fromARGB(255, 218, 197, 6),
-  'ITWL': Colors.deepOrange,
-  'TOC': Colors.purple,
-  'SS': Colors.brown,
+  'DAA': const Color.fromARGB(255, 243, 68, 126),
+  'DSML': const Color.fromARGB(255, 8, 137, 242),
+  'CN': Colors.green,
+  'IPR': const Color.fromARGB(255, 218, 197, 6),
+  'SPM': Colors.deepOrange,
+  'AI': Colors.purple,
+  'BIDA': Colors.purple,
+  'CG': Colors.purple,
+  'IOT': Colors.purple,
+  'Mainframe': Colors.purple,
+  'Project-1': Colors.brown,
+  'Applied AI': Colors.deepPurple,
+  'SDA': Colors.deepPurpleAccent,
+  'AMT': Colors.deepPurpleAccent,
+  'SR': Colors.deepPurpleAccent,
+  'GSDS': Colors.deepPurpleAccent,
+  'AML': Colors.deepOrange,
+  'EHWS': Colors.deepOrange,
+  'AMD': Colors.deepOrange,
+  'CC': Color.fromARGB(255, 218, 197, 6),
+  'LPCC': Colors.green
 };
 
 class ListItemSy extends StatefulWidget {

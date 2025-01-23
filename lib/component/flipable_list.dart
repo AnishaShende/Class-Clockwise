@@ -1,25 +1,36 @@
 import 'package:flip_card/flip_card.dart';
 import 'package:flutter/material.dart';
 
-Map<String, Color> circleAvatorColor = {
-  'DAA': const Color.fromARGB(255, 243, 68, 126),
-  'DSML': const Color.fromARGB(255, 8, 137, 242),
-  'CN': Colors.green,
-  'IPR': const Color.fromARGB(255, 218, 197, 6),
-  'SPM': Colors.deepOrange,
-  'AI': Colors.purple,
-  'BIDA': Colors.purple,
-  'CG': Colors.purple,
-  'IOT': Colors.purple,
-  'Mainframe': Colors.purple,
-  'Project-1': Colors.brown,
-};
+import '../pages/list_item_sy.dart';
 
 class FlipableList extends StatefulWidget {
-  const FlipableList(this.title, this.subtitle, this.classroom, this.startTime,
+  FlipableList(this.title, this.subtitle, this.classroom, this.startTime,
       this.endTime, this.elective, this.formattedString, this.isElective,
       {super.key});
 
+  // Map<String, Color> circleAvatorColor = {
+  //   'DAA': const Color.fromARGB(255, 243, 68, 126),
+  //   'DSML': const Color.fromARGB(255, 8, 137, 242),
+  //   'CN': Colors.green,
+  //   'IPR': const Color.fromARGB(255, 218, 197, 6),
+  //   'SPM': Colors.deepOrange,
+  //   'AI': Colors.purple,
+  //   'BIDA': Colors.purple,
+  //   'CG': Colors.purple,
+  //   'IOT': Colors.purple,
+  //   'Mainframe': Colors.purple,
+  //   'Project-1': Colors.brown,
+  //   'Applied AI': Colors.deepPurple,
+  //   'SDA': Colors.deepPurpleAccent,
+  //   'AMT': Colors.deepPurpleAccent,
+  //   'SR': Colors.deepPurpleAccent,
+  //   'GSDS': Colors.deepPurpleAccent,
+  //   'AML': Colors.deepOrange,
+  //   'EHWS': Colors.deepOrange,
+  //   'AMD': Colors.deepOrange,
+  //   'CC': Color.fromARGB(255, 218, 197, 6),
+  //   'LPCC': Colors.green
+  // };
   final String title;
   final String subtitle;
   final String classroom;
@@ -135,9 +146,13 @@ class _FlipableListState extends State<FlipableList> {
                                           text: ' $str\n',
                                           style: const TextStyle(
                                               fontWeight: FontWeight.w500));
-                                    } else if (str.contains('BIDA') ||
-                                        str.contains('IOT') ||
-                                        str.contains('Mainframe')) {
+                                      // } else if (str.contains('BIDA') ||
+                                      //     str.contains('IOT') ||
+                                      //     str.contains('Mainframe')) {
+                                    } else if (str.contains('AAI') ||
+                                        str.contains('SR') ||
+                                        str.contains('AMT') ||
+                                        str.contains('SDA')) {
                                       return TextSpan(
                                           text: '$str\n',
                                           style: const TextStyle(
